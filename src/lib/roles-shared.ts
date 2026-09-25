@@ -94,6 +94,7 @@ export type Permission =
   | 'canManageTeam'
   | 'canManageBilling'
   | 'canConnectMeta'
+  | 'canViewContent'
   | 'canManageContent'
   | 'canApproveContent'
   | 'canManageAdvisors';
@@ -104,6 +105,7 @@ export const PERMISSIONS: Permission[] = [
   'canManageTeam',
   'canManageBilling',
   'canConnectMeta',
+  'canViewContent',
   'canManageContent',
   'canApproveContent',
   'canManageAdvisors',
@@ -118,6 +120,7 @@ export const PERMISSIONS_BY_ROLE: Record<Role, Permission[]> = {
     'canManageTeam',
     'canManageBilling',
     'canConnectMeta',
+    'canViewContent',
     'canManageContent',
     'canApproveContent',
     'canManageAdvisors',
@@ -128,14 +131,15 @@ export const PERMISSIONS_BY_ROLE: Record<Role, Permission[]> = {
     'canManageTeam',
     'canManageBilling',
     'canConnectMeta',
+    'canViewContent',
     'canManageContent',
     'canApproveContent',
     'canManageAdvisors',
   ],
-  gerente: ['canCreateLead', 'canViewReports', 'canConnectMeta', 'canManageContent', 'canApproveContent', 'canManageAdvisors'],
-  agente: ['canCreateLead', 'canManageContent'],
-  staff: ['canManageContent'],
-  viewer: ['canViewReports'],
+  gerente: ['canCreateLead', 'canViewReports', 'canConnectMeta', 'canViewContent', 'canManageContent', 'canApproveContent', 'canManageAdvisors'],
+  agente: ['canCreateLead', 'canViewContent', 'canManageContent'],
+  staff: ['canViewContent', 'canManageContent'],
+  viewer: ['canViewReports', 'canViewContent'],
 };
 
 /**
@@ -175,6 +179,7 @@ export const MODULE_ACCESS: Record<string, Role[]> = {
   '/agentes-ia': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'viewer'],
   '/conversaciones': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'staff', 'viewer'],
   '/calendarios': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'staff', 'viewer'],
+  '/calendario-contenido': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'staff', 'viewer'],
   '/contactos': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'staff', 'viewer'],
   '/clientes-potenciales': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'staff', 'viewer'],
   '/pasajeros': ['super_admin', 'agency_owner', 'admin', 'gerente', 'agente', 'staff', 'viewer'],

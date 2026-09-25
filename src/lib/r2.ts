@@ -14,13 +14,68 @@ export const r2 = new S3Client({
 const BUCKET = process.env.R2_BUCKET_NAME!;
 const PUBLIC_URL = process.env.R2_PUBLIC_URL!;
 
+export class R2ConfigurationError extends Error {
+  constructor() {
+    super('El almacenamiento de archivos no está configurado.');
+    this.name = 'R2ConfigurationError';
+  }
+}
+
 function ensureR2Config() {
   if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
-    throw new Error('R2_ACCOUNT_ID, R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are required');
+    throw new R2ConfigurationError();
   }
   if (!BUCKET || !PUBLIC_URL) {
-    throw new Error('R2_BUCKET_NAME and R2_PUBLIC_URL are required');
+    throw new R2ConfigurationError();
   }
+}
+
+function safeKeySegment(value: string): string {
+  const sanitized = value.normalize('NFKD').replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80);
+  return sanitized || 'workspace';
+}
+
+function safeExtension(value: string): string {
+  const sanitized = value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+  return sanitized || 'bin';
+}
+
+export function buildContentAssetKey(workspaceId: string, extension: string): string {
+  const workspace = safeKeySegment(workspaceId);
+  const id = crypto.randomBytes(16).toString('hex');
+  return `content-calendar/${workspace}/${id}.${safeExtension(extension)}`;
+}
+
+/** Evita asociar a un tenant una clave R2 emitida para otro workspace. */
+export function isContentAssetKeyForWorkspace(r2Key: string, workspaceId: string): boolean {
+  const prefix = `content-calendar/${safeKeySegment(workspaceId)}/`;
+  return r2Key.startsWith(prefix)
+    && /^content-calendar\/[a-zA-Z0-9_-]+\/[a-f0-9]{32}\.[a-z0-9]{1,10}$/.test(r2Key);
+}
+
+/** Sube un medio del calendario bajo un prefijo aislado por workspace. */
+export async function uploadContentAsset(args: {
+  body: Buffer | Uint8Array;
+  contentType: string;
+  workspaceId: string;
+  extension: string;
+}) {
+  ensureR2Config();
+  const key = buildContentAssetKey(args.workspaceId, args.extension);
+
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+      Body: args.body,
+      ContentType: args.contentType,
+    })
+  );
+
+  return {
+    r2Key: key,
+    publicUrl: `${PUBLIC_URL.replace(/\/$/, '')}/${key}`,
+  };
 }
 
 export async function uploadAsset(args: {

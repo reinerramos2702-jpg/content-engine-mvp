@@ -17,10 +17,16 @@ export class UnauthorizedError extends Error {
 }
 
 export async function apiFetch(input: string, init?: RequestInit): Promise<Response> {
+  const headers = new Headers(init?.headers);
+  const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData;
+  if (!isFormData && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
   const res = await fetch(input, {
     ...init,
     credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+    headers,
   });
 
   if (res.status === 401 && typeof window !== 'undefined') {

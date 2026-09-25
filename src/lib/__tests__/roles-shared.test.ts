@@ -47,6 +47,7 @@ describe('hasPermission', () => {
       'canManageTeam',
       'canManageBilling',
       'canConnectMeta',
+      'canViewContent',
       'canManageContent',
       'canApproveContent',
       'canManageAdvisors',
@@ -197,7 +198,7 @@ describe('MODULE_ACCESS — cobertura de los 7 roles', () => {
   });
 
   it('staff sí ve los módulos operativos que le da la matriz', () => {
-    for (const path of ['/contactos', '/calendarios', '/conversaciones', '/settings']) {
+    for (const path of ['/contactos', '/calendarios', '/calendario-contenido', '/conversaciones', '/settings']) {
       expect(hasModuleAccess('staff', path), `staff debería ver ${path}`).toBe(true);
     }
   });
@@ -212,8 +213,13 @@ describe('MODULE_ACCESS — cobertura de los 7 roles', () => {
 });
 
 describe('PERMISSIONS_BY_ROLE — los 3 roles nuevos', () => {
-  it('agency_owner tiene los 8 permisos', () => {
+  it('agency_owner tiene todos los permisos', () => {
     expect([...PERMISSIONS_BY_ROLE.agency_owner].sort()).toEqual([...PERMISSIONS].sort());
+  });
+
+  it('todos los roles pueden ver contenido, pero viewer no puede gestionarlo', () => {
+    for (const role of ROLES) expect(hasPermission(role, 'canViewContent')).toBe(true);
+    expect(hasPermission('viewer', 'canManageContent')).toBe(false);
   });
 
   it('staff no administra facturación, equipo ni asesores', () => {

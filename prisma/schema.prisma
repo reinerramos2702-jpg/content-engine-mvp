@@ -30,6 +30,7 @@ model User {
   campaigns   Campaign[]
   executions  Execution[]
   memberships WorkspaceMember[]
+  contentPosts ContentPost[]
 }
 
 // Un workspace = una marca/cliente del operador de agencia
@@ -70,6 +71,8 @@ model Workspace {
   apiKeys           ApiKey[]
   metaConnection    WorkspaceMetaConnection?
   settings          Settings?
+  contentCalendarSettings ContentCalendarSettings?
+  contentPosts            ContentPost[]
 
   // Guía de Inicio (/launchpad): overrides manuales para los ítems del checklist
   // que no tienen una condición verificable en la base de datos hoy (ej. "conecta
@@ -165,6 +168,69 @@ model ContentGridAsset {
 
   @@index([gridId])
   @@index([gridId, themeIndex, slideNumber])
+}
+
+// ============================================
+// CALENDARIO DE CONTENIDO (BLOQUE 2A)
+// ============================================
+
+enum ContentPostStatus {
+  draft
+  pending_approval
+  scheduled
+  publishing
+  published
+  error
+}
+
+model ContentCalendarSettings {
+  id              String   @id @default(cuid())
+  workspaceId     String   @unique
+  timezone        String   @default("America/Caracas")
+  defaultPostTime String   @default("18:00")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model ContentPost {
+  id           String            @id @default(cuid())
+  workspaceId  String
+  createdById  String
+  title        String?
+  caption      String?           @db.Text
+  status       ContentPostStatus @default(draft)
+  scheduledFor DateTime?
+  sortIndex    Int               @default(0)
+  networks     String[]          @default(["instagram"])
+  mediaType    String            @default("image")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  workspace Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User               @relation(fields: [createdById], references: [id])
+  media     ContentPostMedia[]
+
+  @@index([workspaceId, scheduledFor])
+  @@index([workspaceId, status])
+}
+
+model ContentPostMedia {
+  id        String   @id @default(cuid())
+  postId    String
+  url       String
+  r2Key     String?
+  kind      String   @default("image")
+  mimeType  String?
+  fileName  String?
+  sizeBytes Int?
+  sortIndex Int      @default(0)
+  createdAt DateTime @default(now())
+
+  post ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, sortIndex])
 }
 
 // ============================================
