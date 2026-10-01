@@ -25,7 +25,6 @@ import {
   ExternalLink,
   Instagram,
 } from 'lucide-react';
-import ContentIGTab from '@/components/pipeline-ig/ContentIGTab';
 import toast from 'react-hot-toast';
 import {
   TRIGGER_META,
@@ -880,7 +879,58 @@ export default function AutomatizacionPage() {
       )}
 
       {/* ===================== TAB: CONTENIDO IG ===================== */}
-      {topTab === 'contenido-ig' && <ContentIGTab />}
+      {topTab === 'contenido-ig' && (
+        <div className="card" style={{ maxWidth: 760, margin: '0 auto', padding: 'clamp(24px, 5vw, 48px)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                margin: '0 auto 16px',
+                borderRadius: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--rai-gold)',
+                background: 'rgba(201,168,76,0.1)',
+                border: '1px solid rgba(201,168,76,0.3)',
+              }}
+            >
+              <Instagram size={26} />
+            </div>
+            <span className="badge-gold">Fuente única de contenido</span>
+            <h2 style={{ margin: '16px 0 8px', fontSize: 'clamp(20px, 4vw, 28px)' }}>
+              Programa y revisa tus publicaciones en el calendario
+            </h2>
+            <p className="muted" style={{ maxWidth: 580, margin: '0 auto 24px', lineHeight: 1.6 }}>
+              El Calendario de contenido es ahora el único lugar para programar y revisar publicaciones de Instagram,
+              evitando estados duplicados entre secciones.
+            </p>
+            <Link href="/calendario-contenido" className="btn btn-primary">
+              Ir al Calendario de contenido <ExternalLink size={15} />
+            </Link>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+              marginTop: 28,
+              padding: 14,
+              borderRadius: 8,
+              background: 'rgba(136,136,170,0.05)',
+              border: '1px solid var(--rai-border)',
+            }}
+          >
+            <Sparkles size={17} color="var(--rai-gold)" style={{ flexShrink: 0, marginTop: 1 }} />
+            <p className="muted" style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>
+              La planificación asistida por IA y la configuración de marca se incorporarán gradualmente a esta
+              experiencia.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ===================== TAB: CONFIGURACIÓN ===================== */}
       {topTab === 'configuracion' && (
